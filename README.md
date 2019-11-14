@@ -40,7 +40,7 @@ pip install yiwise-time-regex
 ```
 
 ## Quack Start
-注：以下demo的测试时间为`2019-09-19 20:40:00`
+注：以下demo的测试时间为`2019-11-14 15:22:00`
 ```
 >>> from yiwise_time_regex import TimeExtractor
 
@@ -58,13 +58,13 @@ pip install yiwise-time-regex
 
 # 返回未来的时间点
 
-'{"type": "time_delta", "norm_time": "2019-09-19 21:10:49", "str_time": ["半小时"]}'
+'{"type": "time_stamp", "norm_time": ["2019-11-14 15:52:00"], "str_time": ["半小时"], "is_fuzzy_time": false}'
 
 >>> te_4_past.parse('半小时左右')
 
 # 返回过去的时间点
 
-'{"type": "time_delta", "norm_time": "2019-09-19 20:10:49", "str_time": ["半小时"]}'
+'{"type": "time_stamp", "norm_time": ["2019-11-14 14:52:00"], "str_time": ["半小时"], "is_fuzzy_time": false}'
 
 ```
 
@@ -75,32 +75,56 @@ pip install yiwise-time-regex
 ```
 >>> te_4_future.parse('周五上午十点')
 
-'{"type": "time_stamp", "norm_time": "2019-09-20 10:00:00", "str_time": ["周5上午10点"]}'
+'{"type": "time_stamp", "norm_time": ["2019-11-15 10:00:00"], "str_time": ["周5上午10点"], "is_fuzzy_time": false}'
 
 >>> te_4_past.parse('周五上午十点')
 
-'{"type": "time_stamp", "norm_time": "2019-09-13 10:00:00", "str_time": ["周5上午10点"]}'
+'{"type": "time_stamp", "norm_time": ["2019-11-08 10:00:00"], "str_time": ["周5上午10点"], "is_fuzzy_time": false}'
 
 ```
 
 ### TimeSpan类型
 
-支持如：明天八点到十点、十点到四点等表述
+支持如：明天八点到十点、十点到两点等表述
+
+```
+>>> te_4_future.parse('十点到两点')
+
+# 返回未来的时间点
+
+'{"type": "time_span", "norm_time": ["2019-11-14 22:00:00", "2019-11-15 02:00:00"], "str_time": ["10点", "2点"], "is_fuzzy_time": false}'
+
+>>> te_4_past.parse('十点到两点')
+
+# 返回过去的时间点
+
+'{"type": "time_span", "norm_time": ["2019-11-14 10:00:00", "2019-11-14 14:00:00"], "str_time": ["10点", "2点"], "is_fuzzy_time": false}'
+
+```
+
+**注意**
+te_4_future和te_4_past的区别仅体现在非明确表达的时间上，如上述的`十点到两点`，或者`两点`这种模糊表达，对于明确表达时间的，如`明天早上八点到明天晚上十点`，二者返回结果相同；
+
+目前对于多时间处理中的跨越当前时刻的处理结果不佳，如`十点到四点`，当前时刻为`2019-11-14 15:22:00`，无法返回以下结果：
+
+`'{"type": "time_span", "norm_time": ["2019-11-14 10:00:00", "2019-11-14 16:00:00"], "str_time": ["10点", "4点"], "is_fuzzy_time": false}'`
+
+**其中，10点为过去时间，而4点为未来时间。**
+
+实际返回结果为：
 
 ```
 >>> te_4_future.parse('十点到四点')
 
 # 返回未来的时间点
 
-{"type": "time_span", "norm_time": ["2019-09-19 22:00:00", "2019-09-20 04:00:00"], "str_time": ["10点", "4点"]}'
+'{"type": "time_span", "norm_time": ["2019-11-14 22:00:00", "2019-11-15 04:00:00"], "str_time": ["10点", "4点"], "is_fuzzy_time": false}'
 
 >>> te_4_past.parse('十点到四点')
 
 # 返回过去的时间点
 
-'{"type": "time_span", "norm_time": ["2019-09-19 10:00:00", "2019-09-19 16:00:00"], "str_time": ["10点", "4点"]}'
+'{"type": "time_span", "norm_time": ["2019-11-13 22:00:00", "2019-11-14 04:00:00"], "str_time": ["10点", "4点"], "is_fuzzy_time": false}'
 
 ```
 
-**注意**
-te_4_future和te_4_past的区别仅体现在非明确表达的时间上，如上述的`十点到四点`，或者`四点`这种模糊表达，对于明确表达时间的，如`今天十点到明天四点`或`今天四点`，二者返回结果相同。
