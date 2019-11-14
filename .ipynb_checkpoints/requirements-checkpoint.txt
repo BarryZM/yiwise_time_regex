@@ -1,0 +1,4 @@
+regex == 2019.8.19
+arrow == 0.14.2
+numpy
+pprint == 0.1
